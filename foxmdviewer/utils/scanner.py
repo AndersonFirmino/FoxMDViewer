@@ -12,8 +12,8 @@ from typing import Iterator, Optional
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from app.config import settings
-from app.models import MarkdownFile
+from foxmdviewer.config import settings
+from foxmdviewer.models import MarkdownFile
 
 console = Console()
 

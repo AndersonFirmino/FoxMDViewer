@@ -1,6 +1,6 @@
 """Models package for mdviewer application."""
 
-from app.models.file import (
+from foxmdviewer.models.file import (
     MarkdownFile,
     FileListResponse,
     FileContentResponse,

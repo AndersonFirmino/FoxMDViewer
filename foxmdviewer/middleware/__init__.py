@@ -1,6 +1,6 @@
 """Middleware package for mdviewer application."""
 
-from app.middleware.cors import CORSMiddleware, RequestLoggingMiddleware
+from foxmdviewer.middleware.cors import CORSMiddleware, RequestLoggingMiddleware
 
 __all__ = [
     "CORSMiddleware",

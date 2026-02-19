@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from app.models.file import (
+from foxmdviewer.models.file import (
     MarkdownFile,
     FileListResponse,
     FileContentResponse,

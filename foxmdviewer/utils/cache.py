@@ -12,7 +12,7 @@ from typing import Optional
 
 from rich.console import Console
 
-from app.config import settings
+from foxmdviewer.config import settings
 
 console = Console()
 

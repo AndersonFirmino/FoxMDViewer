@@ -13,15 +13,15 @@ from starlette.responses import HTMLResponse, JSONResponse
 from starlette.routing import Router
 from starlette.templating import Jinja2Templates
 
-from app.models import (
+from foxmdviewer.models import (
     FileListResponse,
     FileContentResponse,
     MarkdownFile,
     SearchQuery,
     SearchResult,
 )
-from app.services import markdown_renderer
-from app.utils import scan_markdown_files, html_cache
+from foxmdviewer.services import markdown_renderer
+from foxmdviewer.utils import scan_markdown_files, html_cache
 
 templates = Jinja2Templates(directory="templates")
 

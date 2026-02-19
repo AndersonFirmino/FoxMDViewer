@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from app.utils.cache import CacheEntry, HTMLCache
+from foxmdviewer.utils.cache import CacheEntry, HTMLCache
 
 
 class TestCacheEntry:

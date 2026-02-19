@@ -4,7 +4,7 @@ import socket
 
 import pytest
 
-from app.utils.port_finder import PortFinder, find_available_port
+from foxmdviewer.utils.port_finder import PortFinder, find_available_port
 
 
 class TestPortFinder:

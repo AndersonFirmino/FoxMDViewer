@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from app.utils.scanner import MarkdownScanner, scan_markdown_files
+from foxmdviewer.utils.scanner import MarkdownScanner, scan_markdown_files
 
 
 class TestMarkdownScanner:
@@ -180,7 +180,7 @@ class TestMarkdownScanner:
 
     def test_large_file_skipped(self, temp_directory):
         """Test that files exceeding max size are skipped."""
-        from app.config import settings
+        from foxmdviewer.config import settings
 
         # Create a large file
         large_content = "x" * (settings.max_file_size + 1)

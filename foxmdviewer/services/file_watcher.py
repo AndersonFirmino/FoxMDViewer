@@ -13,7 +13,7 @@ from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from rich.console import Console
 
-from app.config import settings
+from foxmdviewer.config import settings
 
 console = Console()
 

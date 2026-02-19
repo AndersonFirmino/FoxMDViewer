@@ -15,14 +15,18 @@ from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 from rich.console import Console
 
-from app.api import api_router, websocket_router, broadcast_file_update
-from app.config import settings, get_settings
-from app.middleware import CORSMiddleware, RequestLoggingMiddleware
-from app.services import create_file_watcher
-from app.utils import find_available_port, open_browser
+from foxmdviewer.api import api_router, websocket_router, broadcast_file_update
+from foxmdviewer.config import settings, get_settings
+from foxmdviewer.middleware import CORSMiddleware, RequestLoggingMiddleware
+from foxmdviewer.services import create_file_watcher
+from foxmdviewer.utils import find_available_port, open_browser
+
+PACKAGE_DIR = Path(__file__).parent
+TEMPLATES_DIR = PACKAGE_DIR / "templates"
+STATIC_DIR = PACKAGE_DIR / "static"
 
 console = Console()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
 async def homepage(request) -> HTMLResponse:
@@ -38,7 +42,7 @@ async def homepage(request) -> HTMLResponse:
     return templates.TemplateResponse(
         request,
         "index.html",
-        {"base_dir": str(app_settings.base_dir), "title": "MDViewer"},
+        {"base_dir": str(app_settings.base_dir), "title": "FoxMDViewer"},
     )
 
 
@@ -54,7 +58,9 @@ async def viewer_page(request) -> HTMLResponse:
     file_path = request.path_params.get("file_path", "")
 
     return templates.TemplateResponse(
-        request, "viewer.html", {"file_path": file_path, "title": "MDViewer - Reader"}
+        request,
+        "viewer.html",
+        {"file_path": file_path, "title": "FoxMDViewer - Reader"},
     )
 
 
@@ -74,7 +80,7 @@ def create_app(base_dir: Optional[Path] = None, debug: bool = False) -> Starlett
     """
     if base_dir:
         global settings
-        from app.config import get_settings
+        from foxmdviewer.config import get_settings
 
         settings = get_settings(base_dir)
 
@@ -83,7 +89,7 @@ def create_app(base_dir: Optional[Path] = None, debug: bool = False) -> Starlett
         Route("/viewer/{file_path:path}", viewer_page),
         Mount("/api", app=api_router),
         Mount("/ws", app=websocket_router),
-        Mount("/static", app=StaticFiles(directory="static"), name="static"),
+        Mount("/static", app=StaticFiles(directory=str(STATIC_DIR)), name="static"),
     ]
 
     middleware = [
@@ -98,7 +104,7 @@ def create_app(base_dir: Optional[Path] = None, debug: bool = False) -> Starlett
 
     async def on_startup() -> None:
         """Application startup handler."""
-        console.print("[bold cyan]🚀 MDViewer Starting...[/bold cyan]")
+        console.print("[bold cyan]🚀 FoxMDViewer Starting...[/bold cyan]")
         console.print(f"[cyan]📁[/cyan] Watching: {app_settings.base_dir}")
 
         loop = asyncio.get_event_loop()
@@ -124,7 +130,7 @@ def create_app(base_dir: Optional[Path] = None, debug: bool = False) -> Starlett
 
     async def on_shutdown() -> None:
         """Application shutdown handler."""
-        console.print("[bold yellow]🛑 MDViewer Shutting down...[/bold yellow]")
+        console.print("[bold yellow]🛑 FoxMDViewer Shutting down...[/bold yellow]")
         if hasattr(new_app.state, "file_watcher") and new_app.state.file_watcher:
             new_app.state.file_watcher.stop()
 
@@ -163,7 +169,7 @@ def run_server(
         >>> run_server(port=8000, base_dir=Path("."))
     """
     import uvicorn
-    import app.config as config_module
+    import foxmdviewer.config as config_module
 
     if base_dir:
         config_module.settings = get_settings(base_dir)
@@ -177,7 +183,7 @@ def run_server(
         port = find_available_port()
 
     console.print("\n[bold green]╔═════════════════════════════════════╗[/bold green]")
-    console.print("[bold green]║      MDViewer - Markdown Viewer     ║[/bold green]")
+    console.print("[bold green]║    🦊 FoxMDViewer - Markdown Viewer   ║[/bold green]")
     console.print("[bold green]╚═════════════════════════════════════╝[/bold green]\n")
 
     console.print(f"[cyan]🌐 Server:[/cyan]  http://{host}:{port}")

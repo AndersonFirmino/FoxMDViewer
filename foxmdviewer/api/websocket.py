@@ -141,7 +141,7 @@ class MarkdownWebSocket(WebSocketEndpoint):
 
         await connection_manager.send_to(
             websocket,
-            {"type": "connected", "message": "Successfully connected to mdviewer"},
+            {"type": "connected", "message": "Successfully connected to FoxMDViewer"},
         )
 
     async def on_disconnect(self, websocket: WebSocket, close_code: int) -> None:

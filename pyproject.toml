@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "foxmdviewer"
+version = "1.0.0"
+description = "A beautiful markdown viewer with Shinto theme - 🦊 FoxMDViewer"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Anderson", email = "anderson@example.com"}
+]
+keywords = ["markdown", "viewer", "web", "shinto", "fox", "kitsune"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "starlette>=0.37.0",
+    "uvicorn[standard]>=0.29.0",
+    "mistune>=3.0.0",
+    "watchdog>=4.0.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.9",
+    "aiofiles>=23.2.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "rich>=13.0.0",
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.27.0",
+]
+
+[project.scripts]
+mdv = "foxmdviewer.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/anderson/foxmdviewer"
+Repository = "https://github.com/anderson/foxmdviewer"
+Issues = "https://github.com/anderson/foxmdviewer/issues"
+
+[tool.setuptools]
+packages = ["foxmdviewer", "foxmdviewer.api", "foxmdviewer.models", 
+            "foxmdviewer.services", "foxmdviewer.utils", "foxmdviewer.middleware"]
+
+[tool.setuptools.package-data]
+foxmdviewer = ["templates/*.html", "static/css/*.css", "static/js/*.js"]

@@ -1,6 +1,6 @@
-# MDViewer 📓
+# FoxMDViewer 🦊⛩️
 
-A beautiful, fast, and feature-rich markdown viewer for the web browser.
+A beautiful, fast, and feature-rich markdown viewer with a Shinto-inspired theme.
 
 ## Features
 

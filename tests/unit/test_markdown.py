@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from app.services.markdown import MarkdownRenderer
+from foxmdviewer.services.markdown import MarkdownRenderer
 
 
 class TestMarkdownRenderer:
@@ -154,7 +154,7 @@ class TestMarkdownRenderer:
 
     def test_render_with_cache(self, temp_markdown_file):
         """Test that caching works when enabled."""
-        from app.utils.cache import html_cache
+        from foxmdviewer.utils.cache import html_cache
 
         # Clear cache first
         html_cache.clear()

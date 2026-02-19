@@ -106,7 +106,7 @@ def hello():
 @pytest.fixture
 def mock_settings(temp_directory):
     """Mock settings for tests."""
-    from app.config import Settings
+    from foxmdviewer.config import Settings
 
     return Settings(
         base_dir=temp_directory,

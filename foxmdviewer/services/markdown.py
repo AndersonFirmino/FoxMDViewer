@@ -10,8 +10,8 @@ from typing import Optional
 import mistune
 from rich.console import Console
 
-from app.config import settings
-from app.utils.cache import html_cache
+from foxmdviewer.config import settings
+from foxmdviewer.utils.cache import html_cache
 
 console = Console()
 
