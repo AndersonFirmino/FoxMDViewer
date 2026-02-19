@@ -381,8 +381,18 @@ body::before {
     font-size: 1.25rem;
 }
 
+/* Special icon for root directory */
+.directory-group[data-path="/"] .directory-name::before {
+    content: '⛩️';
+}
+
 .directory-group.collapsed .directory-name::before {
     content: '📁';
+}
+
+/* Keep torii for collapsed root */
+.directory-group.collapsed[data-path="/"] .directory-name::before {
+    content: '⛩️';
 }
 
 .directory-count {
