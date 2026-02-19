@@ -18,7 +18,103 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!localStorage.getItem('mdviewer-theme')) {
         document.body.className = prefersDark.matches ? 'dark' : 'light';
     }
+
+    initSettings();
 });
+
+function initSettings() {
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsBackdrop = document.getElementById('settings-backdrop');
+    const settingsClose = document.getElementById('settings-close');
+    const kitsuneToggle = document.getElementById('kitsune-mode-toggle');
+    const soundsToggle = document.getElementById('sounds-toggle');
+    const kitsuneWhisper = document.getElementById('kitsune-whisper');
+
+    const defaultSettings = {
+        kitsuneMode: false,
+        sounds: false
+    };
+
+    function loadSettings() {
+        const saved = localStorage.getItem('mdviewer-settings');
+        return saved ? JSON.parse(saved) : defaultSettings;
+    }
+
+    function saveSettings(settings) {
+        localStorage.setItem('mdviewer-settings', JSON.stringify(settings));
+    }
+
+    function applySettings(settings) {
+        if (kitsuneToggle) {
+            kitsuneToggle.checked = settings.kitsuneMode;
+        }
+        if (soundsToggle) {
+            soundsToggle.checked = settings.sounds;
+        }
+        if (kitsuneWhisper) {
+            kitsuneWhisper.style.display = settings.kitsuneMode ? 'block' : 'none';
+        }
+        localStorage.setItem('mdviewer-kitsune-mode', settings.kitsuneMode);
+    }
+
+    function openSettings() {
+        if (settingsModal) {
+            settingsModal.classList.add('active');
+        }
+    }
+
+    function closeSettings() {
+        if (settingsModal) {
+            settingsModal.classList.remove('active');
+        }
+    }
+
+    const settings = loadSettings();
+    applySettings(settings);
+
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', openSettings);
+    }
+
+    if (settingsClose) {
+        settingsClose.addEventListener('click', closeSettings);
+    }
+
+    if (settingsBackdrop) {
+        settingsBackdrop.addEventListener('click', closeSettings);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && settingsModal?.classList.contains('active')) {
+            closeSettings();
+        }
+    });
+
+    if (kitsuneToggle) {
+        kitsuneToggle.addEventListener('change', () => {
+            const currentSettings = loadSettings();
+            currentSettings.kitsuneMode = kitsuneToggle.checked;
+            saveSettings(currentSettings);
+            applySettings(currentSettings);
+            
+            if (kitsuneToggle.checked) {
+                showNotification('🦊 Kitsune Mode ativado!', 'success');
+            } else {
+                showNotification('Kitsune Mode desativado', 'info');
+            }
+        });
+    }
+
+    if (soundsToggle) {
+        soundsToggle.addEventListener('change', () => {
+            const currentSettings = loadSettings();
+            currentSettings.sounds = soundsToggle.checked;
+            saveSettings(currentSettings);
+            applySettings(currentSettings);
+        });
+    }
+}
 
 function debounce(func, wait) {
     let timeout;
@@ -151,5 +247,6 @@ window.mdviewer = {
     escapeHtml,
     copyToClipboard,
     showNotification,
-    debounce
+    debounce,
+    initSettings
 };

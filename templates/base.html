@@ -33,6 +33,7 @@
             transition: opacity 0.5s ease;
             pointer-events: none;
             z-index: 1000;
+            display: none;
         }
         .kitsune-whisper.show {
             opacity: 1;
@@ -54,6 +55,7 @@
                 <h1 class="logo torii-decoration">🦊 MDViewer</h1>
                 <nav class="nav">
                     <a href="/" class="nav-link">⛩️ Arquivos</a>
+                    <button id="settings-btn" class="btn btn-icon" title="Configurações">⚙️</button>
                     <button id="theme-toggle" class="btn btn-icon">🌙</button>
                 </nav>
             </div>
@@ -72,9 +74,205 @@
         <span>🦊</span>
     </div>
 
+    <div class="settings-modal" id="settings-modal">
+        <div class="settings-modal-backdrop" id="settings-backdrop"></div>
+        <div class="settings-modal-content">
+            <div class="settings-header">
+                <h2>⛩️ Configurações</h2>
+                <button class="settings-close" id="settings-close">&times;</button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-section">
+                    <h3>🦊 Kitsune Mode</h3>
+                    <p class="settings-desc">Ative os easter eggs de raposa e animações místicas</p>
+                    <label class="settings-toggle">
+                        <input type="checkbox" id="kitsune-mode-toggle">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Ativar Kitsune Mode</span>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3>🔊 Sons</h3>
+                    <p class="settings-desc">Efeitos sonoros xintoístas (em breve)</p>
+                    <label class="settings-toggle">
+                        <input type="checkbox" id="sounds-toggle" disabled>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Habilitar Sons</span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-footer">
+                <p class="settings-hint">🦊 As preferências são salvas automaticamente</p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-modal.active {
+            display: flex;
+        }
+        .settings-modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        .settings-modal-content {
+            position: relative;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 165, 0, 0.05));
+            border-radius: 14px 14px 0 0;
+        }
+        .settings-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+        .settings-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .settings-close:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+        .settings-body {
+            padding: 1.5rem;
+        }
+        .settings-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .settings-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .settings-section h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        .settings-desc {
+            margin: 0 0 1rem 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .settings-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .settings-toggle input {
+            display: none;
+        }
+        .toggle-slider {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .toggle-slider::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .settings-toggle input:checked + .toggle-slider {
+            background: var(--accent-color);
+        }
+        .settings-toggle input:checked + .toggle-slider::after {
+            transform: translateX(22px);
+        }
+        .settings-toggle input:disabled + .toggle-slider {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .toggle-label {
+            margin-left: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+        .settings-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 14px 14px;
+        }
+        .settings-hint {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        #settings-btn {
+            transition: transform 0.3s;
+        }
+        #settings-btn:hover {
+            transform: rotate(90deg);
+        }
+    </style>
+
     <script src="/static/js/app.js"></script>
     <script>
         (function() {
+            var kitsuneEnabled = localStorage.getItem('mdviewer-kitsune-mode') === 'true';
+            if (!kitsuneEnabled) return;
+            
             var whispers = [
                 'Kitsune observa você...',
                 'As raposas guardam este lugar...',
@@ -87,6 +285,7 @@
             whisperEl.appendChild(tooltip);
             
             function showWhisper() {
+                if (localStorage.getItem('mdviewer-kitsune-mode') !== 'true') return;
                 var msg = whispers[Math.floor(Math.random() * whispers.length)];
                 tooltip.textContent = msg;
                 whisperEl.classList.add('show');
@@ -101,6 +300,7 @@
             whisperEl.style.pointerEvents = 'auto';
             whisperEl.style.cursor = 'pointer';
             whisperEl.addEventListener('click', function() {
+                if (localStorage.getItem('mdviewer-kitsune-mode') !== 'true') return;
                 clickCount++;
                 if (clickCount >= 5) {
                     document.body.style.animation = 'rainbow 2s linear';
