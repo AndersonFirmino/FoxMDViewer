@@ -8,7 +8,7 @@
         <input 
             type="text" 
             id="search-input" 
-            placeholder="🦊 Buscar arquivos..."
+            placeholder="🔍 Buscar arquivos..."
             class="search-input"
         >
     </div>
@@ -19,7 +19,7 @@
     </div>
 
     <div id="file-tree" class="file-tree">
-        <div class="loading">🦊 *kitsune está buscando seus arquivos*</div>
+        <div class="loading">Carregando arquivos...</div>
     </div>
 </div>
 
@@ -51,19 +51,12 @@
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    .fox-trail {
-        position: absolute;
-        font-size: 0.6em;
-        opacity: 0.3;
-        pointer-events: none;
-    }
 </style>
 {% endblock %}
 
 {% block scripts %}
 <script>
     const BASE_DIR = "{{ base_dir }}";
-    const foxIcons = ['🦊', '🦊', '🦊', '📝', '📜', '📋'];
     
     async function loadFiles() {
         try {
@@ -73,12 +66,12 @@
             const fileTree = document.getElementById('file-tree');
             const fileCount = document.getElementById('file-count');
             
-            fileCount.textContent = `⛩️ ${data.total_count} pergaminhos encontrados`;
+            fileCount.textContent = `⛩️ ${data.total_count} arquivos encontrados`;
             
             if (data.files.length === 0) {
                 fileTree.innerHTML = `
                     <div class="empty-state">
-                        <p>🦊 Nenhum pergaminho neste santuário</p>
+                        <p>📭 Nenhum arquivo .md encontrado</p>
                         <p class="hint">Crie arquivos markdown em ${escapeHtml(data.base_dir)}</p>
                     </div>
                 `;
@@ -93,7 +86,7 @@
             console.error('Error loading files:', error);
             document.getElementById('file-tree').innerHTML = `
                 <div class="error-state">
-                    <p>🦊 Algo deu errado no reino espiritual</p>
+                    <p>❌ Erro ao carregar arquivos</p>
                     <p class="hint">${error.message}</p>
                 </div>
             `;
@@ -138,7 +131,7 @@
             <div class="directory-group" data-path="${escapeHtml(group.path)}">
                 <div class="directory-header">
                     <span class="directory-name">${escapeHtml(group.name)}</span>
-                    <span class="directory-count">${group.count} pergaminho${group.count !== 1 ? 's' : ''}</span>
+                    <span class="directory-count">${group.count} arquivo${group.count !== 1 ? 's' : ''}</span>
                 </div>
                 <div class="directory-files">
                     ${group.files.map(file => renderFileCard(file)).join('')}
@@ -147,17 +140,21 @@
         `).join('');
     }
     
-    function getFoxIcon(filename) {
+    function getFileIcon(filename) {
         const name = filename.toLowerCase();
-        if (name.includes('readme')) return '🦊';
-        if (name.includes('todo') || name.includes('task')) return '📋';
-        if (name.includes('guide') || name.includes('tutorial')) return '📜';
-        if (name.includes('api') || name.includes('doc')) return '📝';
-        return foxIcons[Math.floor(Math.random() * foxIcons.length)];
+        if (name.includes('readme')) return '📖';
+        if (name.includes('todo') || name.includes('task')) return '✅';
+        if (name.includes('changelog') || name.includes('history')) return '📜';
+        if (name.includes('guide') || name.includes('tutorial')) return '📚';
+        if (name.includes('api') || name.includes('doc')) return '📄';
+        if (name.includes('config') || name.includes('setup')) return '⚙️';
+        if (name.includes('license')) return '📜';
+        if (name.includes('contributing')) return '🤝';
+        return '📝';
     }
     
     function renderFileCard(file) {
-        const icon = getFoxIcon(file.filename);
+        const icon = getFileIcon(file.filename);
         return `
             <a href="/viewer/${encodeURIComponent(file.relative_path)}" class="file-card" data-search="${escapeHtml(file.filename)} ${escapeHtml(file.title || '')} ${escapeHtml(file.preview || '')}">
                 <div class="file-icon">${icon}</div>
@@ -196,25 +193,6 @@
                 group.style.display = hasVisible || !query ? 'block' : 'none';
             });
         });
-
-        document.querySelectorAll('.file-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                if (Math.random() > 0.9) {
-                    showFoxTrail(this);
-                }
-            });
-        });
-    }
-    
-    function showFoxTrail(element) {
-        const trail = document.createElement('span');
-        trail.className = 'fox-trail';
-        trail.textContent = '✨';
-        trail.style.left = Math.random() * 100 + '%';
-        trail.style.top = Math.random() * 100 + '%';
-        element.style.position = 'relative';
-        element.appendChild(trail);
-        setTimeout(() => trail.remove(), 1000);
     }
     
     function escapeHtml(text) {
