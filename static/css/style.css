@@ -544,6 +544,7 @@ body::before {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     backdrop-filter: blur(10px);
+    overflow-x: hidden;
 }
 
 .markdown-body h1 {
@@ -624,11 +625,15 @@ body::before {
 }
 
 .markdown-body table {
+    display: block;
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse;
     margin-bottom: 1.5rem;
     border-radius: var(--radius-md);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
 }
 
 .markdown-body th {
