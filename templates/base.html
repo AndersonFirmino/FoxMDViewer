@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MDViewer{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+</head>
+<body class="dark">
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">📓 MDViewer</h1>
+                <nav class="nav">
+                    <a href="/" class="nav-link">📁 Arquivos</a>
+                    <button id="theme-toggle" class="btn btn-icon">🌓</button>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="footer">
+            <p>MDViewer © 2025 | Markdown Viewer</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

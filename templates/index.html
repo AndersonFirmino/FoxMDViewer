@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}MDViewer - {{ base_dir }}{% endblock %}
+
+{% block content %}
+<div class="index-container">
+    <div class="search-box">
+        <input 
+            type="text" 
+            id="search-input" 
+            placeholder="🔍 Buscar arquivos..."
+            class="search-input"
+        >
+    </div>
+
+    <div class="stats-bar">
+        <span id="file-count">📊 Carregando...</span>
+        <span id="base-dir">📁 {{ base_dir }}</span>
+    </div>
+
+    <div id="file-tree" class="file-tree">
+        <div class="loading">⏳ Carregando arquivos...</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const BASE_DIR = "{{ base_dir }}";
+    
+    async function loadFiles() {
+        try {
+            const response = await fetch('/api/files');
+            const data = await response.json();
+            
+            const fileTree = document.getElementById('file-tree');
+            const fileCount = document.getElementById('file-count');
+            
+            fileCount.textContent = `📊 ${data.total_count} arquivos encontrados`;
+            
+            if (data.files.length === 0) {
+                fileTree.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭 Nenhum arquivo .md encontrado</p>
+                        <p class="hint">Crie arquivos markdown em ${escapeHtml(data.base_dir)}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group files by directory
+            const grouped = groupFilesByDirectory(data.files);
+            
+            // Render tree
+            fileTree.innerHTML = renderFileTree(grouped);
+            
+            // Add event listeners
+            addEventListeners();
+            
+        } catch (error) {
+            console.error('Error loading files:', error);
+            document.getElementById('file-tree').innerHTML = `
+                <div class="error-state">
+                    <p>❌ Erro ao carregar arquivos</p>
+                    <p class="hint">${error.message}</p>
+                </div>
+            `;
+        }
+    }
+    
+    function groupFilesByDirectory(files) {
+        const grouped = {};
+        
+        files.forEach(file => {
+            const parts = file.relative_path.split('/');
+            const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : '/';
+            
+            if (!grouped[dir]) {
+                grouped[dir] = {
+                    name: dir === '/' ? '📁 Raiz' : `📁 ${dir}`,
+                    path: dir,
+                    files: [],
+                    count: 0
+                };
+            }
+            
+            grouped[dir].files.push(file);
+            grouped[dir].count++;
+        });
+        
+        // Sort directories: root first, then alphabetically
+        const sorted = Object.values(grouped).sort((a, b) => {
+            if (a.path === '/') return -1;
+            if (b.path === '/') return 1;
+            return a.path.localeCompare(b.path);
+        });
+        
+        // Sort files within each directory by name
+        sorted.forEach(group => {
+            group.files.sort((a, b) => a.filename.localeCompare(b.filename));
+        });
+        
+        return sorted;
+    }
+    
+    function renderFileTree(grouped) {
+        return grouped.map(group => `
+            <div class="directory-group" data-path="${escapeHtml(group.path)}">
+                <div class="directory-header">
+                    <span class="directory-name">${escapeHtml(group.name)}</span>
+                    <span class="directory-count">${group.count} arquivo${group.count !== 1 ? 's' : ''}</span>
+                </div>
+                <div class="directory-files">
+                    ${group.files.map(file => renderFileCard(file)).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function renderFileCard(file) {
+        return `
+            <a href="/viewer/${encodeURIComponent(file.relative_path)}" class="file-card" data-search="${escapeHtml(file.filename)} ${escapeHtml(file.title || '')} ${escapeHtml(file.preview || '')}">
+                <div class="file-icon">📝</div>
+                <div class="file-info">
+                    <h3 class="file-title">${escapeHtml(file.title || file.filename)}</h3>
+                    <p class="file-name">${escapeHtml(file.filename)}</p>
+                    <div class="file-meta">
+                        <span>📅 ${formatDate(file.modified_at)}</span>
+                        <span>📦 ${formatSize(file.size)}</span>
+                    </div>
+                    ${file.preview ? `<p class="file-preview">${escapeHtml(file.preview)}</p>` : ''}
+                </div>
+            </a>
+        `;
+    }
+    
+    function addEventListeners() {
+        // Directory collapse/expand
+        document.querySelectorAll('.directory-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                const group = header.closest('.directory-group');
+                group.classList.toggle('collapsed');
+            });
+        });
+        
+        // Search
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            
+            document.querySelectorAll('.file-card').forEach(card => {
+                const searchText = card.dataset.search.toLowerCase();
+                card.style.display = searchText.includes(query) ? 'flex' : 'none';
+            });
+            
+            // Show/hide directory groups based on visible files
+            document.querySelectorAll('.directory-group').forEach(group => {
+                const visibleFiles = group.querySelectorAll('.file-card[style="display: flex"], .file-card:not([style])');
+                const hasVisible = Array.from(visibleFiles).some(f => f.style.display !== 'none');
+                group.style.display = hasVisible || !query ? 'block' : 'none';
+            });
+        });
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('pt-BR');
+    }
+    
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+    
+    // Load files on page load
+    loadFiles();
+</script>
+{% endblock %}

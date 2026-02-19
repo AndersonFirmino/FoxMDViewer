@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}MDViewer - {{ file_path }}{% endblock %}
+
+{% block content %}
+<div class="viewer-container">
+    <div class="viewer-header">
+        <a href="/" class="btn btn-secondary">← Voltar</a>
+        <h2 id="file-title" class="viewer-title">Carregando...</h2>
+        <div class="viewer-actions">
+            <button id="edit-toggle" class="btn btn-primary">✏️ Editar</button>
+            <button id="download-btn" class="btn btn-secondary">⬇️ Download</button>
+        </div>
+    </div>
+
+    <div class="viewer-content">
+        <div id="markdown-preview" class="markdown-body">
+            <div class="loading">⏳ Carregando documento...</div>
+        </div>
+        
+        <div id="editor-container" class="editor-container hidden">
+            <textarea id="markdown-editor" class="markdown-editor"></textarea>
+        </div>
+    </div>
+
+    <div class="viewer-footer">
+        <span id="last-modified"></span>
+        <span id="file-size"></span>
+        <span id="connection-status" class="status-connected">🟢 Conectado</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const FILE_PATH = "{{ file_path }}";
+    let isEditing = false;
+    let originalContent = '';
+    let ws = null;
+    
+    async function loadFile() {
+        try {
+            const response = await fetch(`/api/files/${FILE_PATH}`);
+            const data = await response.json();
+            
+            if (data.error) {
+                document.getElementById('markdown-preview').innerHTML = `
+                    <div class="error-state">
+                        <p>❌ ${data.error}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            document.getElementById('file-title').textContent = 
+                data.file.title || data.file.filename;
+            
+            document.getElementById('markdown-preview').innerHTML = 
+                DOMPurify.sanitize(marked.parse(data.raw_content));
+            
+            document.getElementById('markdown-editor').value = data.raw_content;
+            originalContent = data.raw_content;
+            
+            document.getElementById('last-modified').textContent = 
+                `📅 Última modificação: ${new Date(data.file.modified_at).toLocaleString('pt-BR')}`;
+            document.getElementById('file-size').textContent = 
+                `📦 Tamanho: ${formatSize(data.file.size)}`;
+            
+        } catch (error) {
+            console.error('Error loading file:', error);
+        }
+    }
+    
+    function connectWebSocket() {
+        const wsUrl = `ws://${window.location.host}/ws/`;
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+            document.getElementById('connection-status').innerHTML = 
+                '🟢 Conectado';
+            document.getElementById('connection-status').className = 
+                'status-connected';
+        };
+        
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'file_update' && 
+                message.path.includes(FILE_PATH)) {
+                console.log('File updated:', message.event);
+                loadFile();
+            }
+        };
+        
+        ws.onclose = () => {
+            document.getElementById('connection-status').innerHTML = 
+                '🔴 Desconectado';
+            document.getElementById('connection-status').className = 
+                'status-disconnected';
+            
+            setTimeout(connectWebSocket, 3000);
+        };
+        
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    }
+    
+    function toggleEditor() {
+        isEditing = !isEditing;
+        const preview = document.getElementById('markdown-preview');
+        const editor = document.getElementById('editor-container');
+        const button = document.getElementById('edit-toggle');
+        
+        if (isEditing) {
+            preview.classList.add('hidden');
+            editor.classList.remove('hidden');
+            button.textContent = '👁️ Visualizar';
+        } else {
+            preview.classList.remove('hidden');
+            editor.classList.add('hidden');
+            button.textContent = '✏️ Editar';
+            
+            const currentContent = document.getElementById('markdown-editor').value;
+            if (currentContent !== originalContent) {
+                previewContent(currentContent);
+            }
+        }
+    }
+    
+    function previewContent(content) {
+        document.getElementById('markdown-preview').innerHTML = 
+            DOMPurify.sanitize(marked.parse(content));
+    }
+    
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+    
+    document.getElementById('edit-toggle').addEventListener('click', toggleEditor);
+    
+    document.getElementById('markdown-editor').addEventListener('input', (e) => {
+        previewContent(e.target.value);
+    });
+    
+    document.getElementById('download-btn').addEventListener('click', () => {
+        const blob = new Blob(
+            [document.getElementById('markdown-editor').value],
+            { type: 'text/markdown' }
+        );
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = FILE_PATH.split('/').pop();
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+    
+    loadFile();
+    connectWebSocket();
+</script>
+{% endblock %}
