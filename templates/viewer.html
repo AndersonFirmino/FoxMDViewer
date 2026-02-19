@@ -5,8 +5,8 @@
 {% block content %}
 <div class="viewer-container">
     <div class="viewer-header">
-        <a href="/" class="btn btn-secondary">← Voltar</a>
-        <h2 id="file-title" class="viewer-title">Carregando...</h2>
+        <a href="/" class="btn btn-secondary">⛩️ Santuário</a>
+        <h2 id="file-title" class="viewer-title">🦊 Carregando...</h2>
         <div class="viewer-actions">
             <button id="edit-toggle" class="btn btn-primary">✏️ Editar</button>
             <button id="download-btn" class="btn btn-secondary">⬇️ Download</button>
@@ -15,7 +15,7 @@
 
     <div class="viewer-content">
         <div id="markdown-preview" class="markdown-body">
-            <div class="loading">⏳ Carregando documento...</div>
+            <div class="loading">🦊 *kitsune está preparando o pergaminho*</div>
         </div>
         
         <div id="editor-container" class="editor-container hidden">
@@ -26,9 +26,60 @@
     <div class="viewer-footer">
         <span id="last-modified"></span>
         <span id="file-size"></span>
-        <span id="connection-status" class="status-connected">🟢 Conectado</span>
+        <span id="connection-status" class="status-connected">🟢 Conectado ao Santuário</span>
     </div>
 </div>
+
+<style>
+    .viewer-title::before {
+        content: '🦊 ';
+        animation: title-pulse 2s ease-in-out infinite;
+    }
+    @keyframes title-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+    .viewer-content {
+        position: relative;
+    }
+    .viewer-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff);
+        border-radius: 3px 3px 0 0;
+        opacity: 0.7;
+    }
+    .markdown-body {
+        animation: contentFadeIn 0.5s ease;
+    }
+    @keyframes contentFadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .status-connected::before {
+        content: '⛩️ ';
+    }
+    .status-disconnected::before {
+        content: '🦊 ';
+    }
+    #edit-toggle.btn-primary {
+        transition: all 0.3s ease;
+    }
+    #edit-toggle.btn-primary:hover {
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+    }
+    .editor-container:not(.hidden) {
+        animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -37,6 +88,32 @@
     let isEditing = false;
     let originalContent = '';
     let ws = null;
+    let konamiCode = [];
+    const konamiSequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+    
+    document.addEventListener('keydown', function(e) {
+        konamiCode.push(e.keyCode);
+        if (konamiCode.length > 10) konamiCode.shift();
+        if (konamiCode.join(',') === konamiSequence.join(',')) {
+            activateKitsuneMode();
+            konamiCode = [];
+        }
+    });
+    
+    function activateKitsuneMode() {
+        document.body.style.transition = 'all 1s ease';
+        document.querySelectorAll('.file-icon, .logo').forEach(function(el) {
+            el.textContent = '🦊';
+        });
+        var whisper = document.getElementById('kitsune-whisper');
+        if (whisper) {
+            whisper.classList.add('show');
+            setTimeout(function() { whisper.classList.remove('show'); }, 3000);
+        }
+        var style = document.createElement('style');
+        style.textContent = '* { font-family: "Noto Sans JP", sans-serif !important; }';
+        document.head.appendChild(style);
+    }
     
     async function loadFile() {
         try {
@@ -46,7 +123,8 @@
             if (data.error) {
                 document.getElementById('markdown-preview').innerHTML = `
                     <div class="error-state">
-                        <p>❌ ${data.error}</p>
+                        <p>🦊 ${data.error}</p>
+                        <p class="hint">O kitsune não conseguiu encontrar este pergaminho</p>
                     </div>
                 `;
                 return;
@@ -77,7 +155,7 @@
         
         ws.onopen = () => {
             document.getElementById('connection-status').innerHTML = 
-                '🟢 Conectado';
+                '🟢 Conectado ao Santuário';
             document.getElementById('connection-status').className = 
                 'status-connected';
         };
@@ -94,7 +172,7 @@
         
         ws.onclose = () => {
             document.getElementById('connection-status').innerHTML = 
-                '🔴 Desconectado';
+                '🦊 Desconectado - Kitsune está tentando reconectar...';
             document.getElementById('connection-status').className = 
                 'status-disconnected';
             

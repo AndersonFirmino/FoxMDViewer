@@ -8,25 +8,62 @@
         <input 
             type="text" 
             id="search-input" 
-            placeholder="🔍 Buscar arquivos..."
+            placeholder="🦊 Buscar arquivos..."
             class="search-input"
         >
     </div>
 
     <div class="stats-bar">
-        <span id="file-count">📊 Carregando...</span>
+        <span id="file-count">⛩️ Carregando...</span>
         <span id="base-dir">📁 {{ base_dir }}</span>
     </div>
 
     <div id="file-tree" class="file-tree">
-        <div class="loading">⏳ Carregando arquivos...</div>
+        <div class="loading">🦊 *kitsune está buscando seus arquivos*</div>
     </div>
 </div>
+
+<style>
+    .file-card {
+        transition: all 0.3s ease;
+    }
+    .file-card:hover {
+        transform: translateX(5px);
+    }
+    .file-card:hover .file-icon {
+        animation: kitsune-wiggle 0.5s ease;
+    }
+    @keyframes kitsune-wiggle {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-10deg); }
+        75% { transform: rotate(10deg); }
+    }
+    .directory-group {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+    .directory-group:nth-child(1) { animation-delay: 0.1s; }
+    .directory-group:nth-child(2) { animation-delay: 0.2s; }
+    .directory-group:nth-child(3) { animation-delay: 0.3s; }
+    .directory-group:nth-child(4) { animation-delay: 0.4s; }
+    .directory-group:nth-child(5) { animation-delay: 0.5s; }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .fox-trail {
+        position: absolute;
+        font-size: 0.6em;
+        opacity: 0.3;
+        pointer-events: none;
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
     const BASE_DIR = "{{ base_dir }}";
+    const foxIcons = ['🦊', '🦊', '🦊', '📝', '📜', '📋'];
     
     async function loadFiles() {
         try {
@@ -36,32 +73,27 @@
             const fileTree = document.getElementById('file-tree');
             const fileCount = document.getElementById('file-count');
             
-            fileCount.textContent = `📊 ${data.total_count} arquivos encontrados`;
+            fileCount.textContent = `⛩️ ${data.total_count} pergaminhos encontrados`;
             
             if (data.files.length === 0) {
                 fileTree.innerHTML = `
                     <div class="empty-state">
-                        <p>📭 Nenhum arquivo .md encontrado</p>
+                        <p>🦊 Nenhum pergaminho neste santuário</p>
                         <p class="hint">Crie arquivos markdown em ${escapeHtml(data.base_dir)}</p>
                     </div>
                 `;
                 return;
             }
             
-            // Group files by directory
             const grouped = groupFilesByDirectory(data.files);
-            
-            // Render tree
             fileTree.innerHTML = renderFileTree(grouped);
-            
-            // Add event listeners
             addEventListeners();
             
         } catch (error) {
             console.error('Error loading files:', error);
             document.getElementById('file-tree').innerHTML = `
                 <div class="error-state">
-                    <p>❌ Erro ao carregar arquivos</p>
+                    <p>🦊 Algo deu errado no reino espiritual</p>
                     <p class="hint">${error.message}</p>
                 </div>
             `;
@@ -77,7 +109,7 @@
             
             if (!grouped[dir]) {
                 grouped[dir] = {
-                    name: dir === '/' ? '📁 Raiz' : `📁 ${dir}`,
+                    name: dir === '/' ? '⛩️ Santuário Principal' : `📁 ${dir}`,
                     path: dir,
                     files: [],
                     count: 0
@@ -88,14 +120,12 @@
             grouped[dir].count++;
         });
         
-        // Sort directories: root first, then alphabetically
         const sorted = Object.values(grouped).sort((a, b) => {
             if (a.path === '/') return -1;
             if (b.path === '/') return 1;
             return a.path.localeCompare(b.path);
         });
         
-        // Sort files within each directory by name
         sorted.forEach(group => {
             group.files.sort((a, b) => a.filename.localeCompare(b.filename));
         });
@@ -108,7 +138,7 @@
             <div class="directory-group" data-path="${escapeHtml(group.path)}">
                 <div class="directory-header">
                     <span class="directory-name">${escapeHtml(group.name)}</span>
-                    <span class="directory-count">${group.count} arquivo${group.count !== 1 ? 's' : ''}</span>
+                    <span class="directory-count">${group.count} pergaminho${group.count !== 1 ? 's' : ''}</span>
                 </div>
                 <div class="directory-files">
                     ${group.files.map(file => renderFileCard(file)).join('')}
@@ -117,10 +147,20 @@
         `).join('');
     }
     
+    function getFoxIcon(filename) {
+        const name = filename.toLowerCase();
+        if (name.includes('readme')) return '🦊';
+        if (name.includes('todo') || name.includes('task')) return '📋';
+        if (name.includes('guide') || name.includes('tutorial')) return '📜';
+        if (name.includes('api') || name.includes('doc')) return '📝';
+        return foxIcons[Math.floor(Math.random() * foxIcons.length)];
+    }
+    
     function renderFileCard(file) {
+        const icon = getFoxIcon(file.filename);
         return `
             <a href="/viewer/${encodeURIComponent(file.relative_path)}" class="file-card" data-search="${escapeHtml(file.filename)} ${escapeHtml(file.title || '')} ${escapeHtml(file.preview || '')}">
-                <div class="file-icon">📝</div>
+                <div class="file-icon">${icon}</div>
                 <div class="file-info">
                     <h3 class="file-title">${escapeHtml(file.title || file.filename)}</h3>
                     <p class="file-name">${escapeHtml(file.filename)}</p>
@@ -135,7 +175,6 @@
     }
     
     function addEventListeners() {
-        // Directory collapse/expand
         document.querySelectorAll('.directory-header').forEach(header => {
             header.addEventListener('click', (e) => {
                 const group = header.closest('.directory-group');
@@ -143,7 +182,6 @@
             });
         });
         
-        // Search
         document.getElementById('search-input').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             
@@ -152,13 +190,31 @@
                 card.style.display = searchText.includes(query) ? 'flex' : 'none';
             });
             
-            // Show/hide directory groups based on visible files
             document.querySelectorAll('.directory-group').forEach(group => {
                 const visibleFiles = group.querySelectorAll('.file-card[style="display: flex"], .file-card:not([style])');
                 const hasVisible = Array.from(visibleFiles).some(f => f.style.display !== 'none');
                 group.style.display = hasVisible || !query ? 'block' : 'none';
             });
         });
+
+        document.querySelectorAll('.file-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                if (Math.random() > 0.9) {
+                    showFoxTrail(this);
+                }
+            });
+        });
+    }
+    
+    function showFoxTrail(element) {
+        const trail = document.createElement('span');
+        trail.className = 'fox-trail';
+        trail.textContent = '✨';
+        trail.style.left = Math.random() * 100 + '%';
+        trail.style.top = Math.random() * 100 + '%';
+        element.style.position = 'relative';
+        element.appendChild(trail);
+        setTimeout(() => trail.remove(), 1000);
     }
     
     function escapeHtml(text) {
@@ -178,7 +234,6 @@
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
     
-    // Load files on page load
     loadFiles();
 </script>
 {% endblock %}

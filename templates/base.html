@@ -4,18 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MDViewer{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <style>
+        .torii-decoration {
+            position: relative;
+        }
+        .torii-decoration::before {
+            content: '⛩️';
+            position: absolute;
+            left: -28px;
+            font-size: 1.2em;
+            animation: torii-glow 3s ease-in-out infinite;
+        }
+        @keyframes torii-glow {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 107, 107, 0.5)); }
+            50% { filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.8)); }
+        }
+        .kitsune-whisper {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .kitsune-whisper.show {
+            opacity: 1;
+        }
+        .kitsune-whisper span {
+            font-size: 2em;
+            animation: kitsune-float 2s ease-in-out infinite;
+        }
+        @keyframes kitsune-float {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+    </style>
 </head>
 <body class="dark">
     <div class="container">
         <header class="header">
             <div class="header-content">
-                <h1 class="logo">📓 MDViewer</h1>
+                <h1 class="logo torii-decoration">🦊 MDViewer</h1>
                 <nav class="nav">
-                    <a href="/" class="nav-link">📁 Arquivos</a>
-                    <button id="theme-toggle" class="btn btn-icon">🌓</button>
+                    <a href="/" class="nav-link">⛩️ Arquivos</a>
+                    <button id="theme-toggle" class="btn btn-icon">🌙</button>
                 </nav>
             </div>
         </header>
@@ -25,11 +64,54 @@
         </main>
 
         <footer class="footer">
-            <p>MDViewer © 2025 | Markdown Viewer</p>
+            <p>⛩️ MDViewer © 2025 | Feito com 🦊 kitsune magic</p>
         </footer>
     </div>
 
+    <div class="kitsune-whisper" id="kitsune-whisper">
+        <span>🦊</span>
+    </div>
+
     <script src="/static/js/app.js"></script>
+    <script>
+        (function() {
+            var whispers = [
+                'Kitsune observa você...',
+                'As raposas guardam este lugar...',
+                '✨ Magia xintoísta ativa',
+                '🦊 *disappears into mist*'
+            ];
+            var whisperEl = document.getElementById('kitsune-whisper');
+            var tooltip = document.createElement('small');
+            tooltip.style.cssText = 'position:absolute;bottom:40px;right:0;background:rgba(0,0,0,0.8);padding:5px 10px;border-radius:5px;font-size:0.8em;white-space:nowrap;';
+            whisperEl.appendChild(tooltip);
+            
+            function showWhisper() {
+                var msg = whispers[Math.floor(Math.random() * whispers.length)];
+                tooltip.textContent = msg;
+                whisperEl.classList.add('show');
+                setTimeout(function() {
+                    whisperEl.classList.remove('show');
+                }, 3000);
+                setTimeout(showWhisper, 15000 + Math.random() * 30000);
+            }
+            setTimeout(showWhisper, 5000);
+            
+            var clickCount = 0;
+            whisperEl.style.pointerEvents = 'auto';
+            whisperEl.style.cursor = 'pointer';
+            whisperEl.addEventListener('click', function() {
+                clickCount++;
+                if (clickCount >= 5) {
+                    document.body.style.animation = 'rainbow 2s linear';
+                    setTimeout(function() {
+                        document.body.style.animation = '';
+                    }, 2000);
+                    clickCount = 0;
+                }
+            });
+        })();
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
