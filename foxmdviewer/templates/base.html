@@ -66,9 +66,11 @@
         </main>
 
         <footer class="footer">
-            <p>⛩️ FoxMDViewer © 2025 | Made with 🦊 kitsune magic</p>
+            <p>⛩️ FoxMDViewer © <span id="current-year"></span> | Made with 🦊 kitsune magic</p>
         </footer>
     </div>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
 
     <div class="kitsune-whisper" id="kitsune-whisper">
         <span>🦊</span>
