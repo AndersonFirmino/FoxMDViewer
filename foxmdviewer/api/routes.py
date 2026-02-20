@@ -240,11 +240,14 @@ async def export_html(request) -> HTMLResponse:
     <title>{title} - FoxMDViewer</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        html, body {{
+            width: 100%;
+            overflow-x: hidden;
+        }}
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             line-height: 1.8;
             color: #1a1a1a;
-            max-width: 100%;
             padding: 3rem 4rem;
             background: #fff;
         }}
@@ -290,18 +293,37 @@ async def export_html(request) -> HTMLResponse:
             background: none;
             padding: 0;
         }}
-        table {{
+        .table-container {{
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1.25rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
         }}
-        th, td {{
-            border: 1px solid #ddd;
-            padding: 0.75rem;
-            text-align: left;
+        table {{
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            width: 100%;
+            min-width: 100%;
+            table-layout: auto;
         }}
         th {{
-            background: #f5f5f5;
+            background: #e8e8e8;
+            font-weight: 600;
+            padding: 0.875rem 1rem;
+            border: 1px solid #bbb;
+            text-align: left;
+            white-space: nowrap;
+        }}
+        td {{
+            padding: 0.75rem 1rem;
+            border: 1px solid #ccc;
+            text-align: left;
+            vertical-align: top;
+        }}
+        tr:nth-child(even) td {{
+            background: #f9f9f9;
+        }}
+        tr:hover td {{
+            background: #f0f0f0;
         }}
         blockquote {{
             border-left: 3px solid #FF6B35;
@@ -316,9 +338,21 @@ async def export_html(request) -> HTMLResponse:
         li {{
             margin-bottom: 0.5rem;
         }}
+        img {{
+            max-width: 100%;
+            height: auto;
+        }}
+        hr {{
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 2rem 0;
+        }}
         @media print {{
             body {{ padding: 2rem; }}
             pre {{ white-space: pre-wrap; word-wrap: break-word; }}
+            .table-container {{ overflow-x: visible; }}
+            table {{ page-break-inside: auto; }}
+            tr {{ page-break-inside: avoid; page-break-after: auto; }}
         }}
     </style>
 </head>
