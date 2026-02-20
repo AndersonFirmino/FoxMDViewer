@@ -83,8 +83,17 @@ class MarkdownScanner:
         Yields:
             MarkdownFile: Each found markdown file with metadata
         """
+        base_dir_resolved = self.base_dir.resolve()
+        
         for root, dirs, files in os.walk(self.base_dir):
-            root_path = Path(root)
+            root_path = Path(root).resolve()
+
+            # Security: Ensure we never escape base_dir
+            try:
+                root_path.relative_to(base_dir_resolved)
+            except ValueError:
+                console.print(f"[red]✗[/red] Skipping path outside base_dir: {root_path}")
+                continue
 
             dirs[:] = [d for d in dirs if d not in self.exclude_dirs]
 
