@@ -9,7 +9,8 @@
         <h2 id="file-title" class="viewer-title">🦊 Carregando...</h2>
         <div class="viewer-actions">
             <button id="edit-toggle" class="btn btn-primary">✏️ Editar</button>
-            <button id="download-btn" class="btn btn-secondary">⬇️ Download</button>
+            <a id="export-html-btn" class="btn btn-secondary" target="_blank">📄 HTML</a>
+            <button id="download-btn" class="btn btn-secondary">⬇️ .md</button>
         </div>
     </div>
 
@@ -26,7 +27,7 @@
     <div class="viewer-footer">
         <span id="last-modified"></span>
         <span id="file-size"></span>
-        <span id="connection-status" class="status-connected">🟢 Conectado ao Santuário</span>
+        <span id="connection-status" class="status-connected">🟢 Connected</span>
     </div>
 </div>
 
@@ -138,6 +139,10 @@
             
             document.getElementById('markdown-editor').value = data.raw_content;
             originalContent = data.raw_content;
+            
+            // Update export link
+            document.getElementById('export-html-btn').href = 
+                `/api/export/html/${FILE_PATH}`;
             
             document.getElementById('last-modified').textContent = 
                 `📅 Last modified: ${new Date(data.file.modified_at).toLocaleString('pt-BR')}`;

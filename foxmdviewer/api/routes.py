@@ -209,6 +209,158 @@ def _extract_matches(
     return matches
 
 
+async def export_html(request) -> HTMLResponse:
+    """Export file as standalone HTML for printing/PDF.
+    
+    Args:
+        request: Starlette request object with file_path parameter
+        
+    Returns:
+        HTMLResponse: Standalone HTML with embedded CSS
+    """
+    app_settings = request.app.state.settings
+    file_path_str = request.path_params["file_path"]
+    file_path = app_settings.base_dir / file_path_str
+
+    if not file_path.exists():
+        return HTMLResponse("<h1>File not found</h1>", status_code=404)
+
+    if not file_path.is_relative_to(app_settings.base_dir):
+        return HTMLResponse("<h1>Access denied</h1>", status_code=403)
+
+    try:
+        html_content = markdown_renderer.render_file(file_path)
+        title = file_path.stem
+        
+        standalone_html = f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} - FoxMDViewer</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.8;
+            color: #1a1a1a;
+            max-width: 100%;
+            padding: 3rem 4rem;
+            background: #fff;
+        }}
+        h1 {{
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #BC002D;
+            color: #1a1a1a;
+        }}
+        h2 {{
+            font-size: 1.7rem;
+            margin: 2rem 0 1rem;
+            padding-left: 0.75rem;
+            border-left: 3px solid #FF6B35;
+        }}
+        h3 {{
+            font-size: 1.4rem;
+            margin: 1.5rem 0 0.75rem;
+        }}
+        p {{
+            margin-bottom: 1.25rem;
+        }}
+        a {{
+            color: #FF6B35;
+            text-decoration: none;
+        }}
+        code {{
+            background: #f5f5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }}
+        pre {{
+            background: #f5f5f5;
+            padding: 1.25rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1.25rem;
+        }}
+        pre code {{
+            background: none;
+            padding: 0;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.25rem;
+        }}
+        th, td {{
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }}
+        th {{
+            background: #f5f5f5;
+        }}
+        blockquote {{
+            border-left: 3px solid #FF6B35;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #666;
+        }}
+        ul, ol {{
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }}
+        li {{
+            margin-bottom: 0.5rem;
+        }}
+        @media print {{
+            body {{ padding: 2rem; }}
+            pre {{ white-space: pre-wrap; word-wrap: break-word; }}
+        }}
+    </style>
+</head>
+<body>
+    {html_content}
+</body>
+</html>"""
+        
+        return HTMLResponse(standalone_html)
+        
+    except Exception as e:
+        return HTMLResponse(f"<h1>Error: {e}</h1>", status_code=500)
+
+
+async def download_markdown(request):
+    """Download raw markdown file.
+    
+    Args:
+        request: Starlette request object with file_path parameter
+        
+    Returns:
+        Response: File download response
+    """
+    from starlette.responses import FileResponse
+    
+    app_settings = request.app.state.settings
+    file_path_str = request.path_params["file_path"]
+    file_path = app_settings.base_dir / file_path_str
+
+    if not file_path.exists():
+        return JSONResponse({"error": "File not found"}, status_code=404)
+
+    if not file_path.is_relative_to(app_settings.base_dir):
+        return JSONResponse({"error": "Access denied"}, status_code=403)
+
+    return FileResponse(
+        path=file_path,
+        filename=file_path.name,
+        media_type="text/markdown"
+    )
+
+
 def create_api_router() -> Router:
     """Create and configure API router.
 
@@ -226,6 +378,8 @@ def create_api_router() -> Router:
     router.add_route("/search", search_files, methods=["POST"])
     router.add_route("/cache/stats", get_cache_stats)
     router.add_route("/cache", clear_cache, methods=["DELETE"])
+    router.add_route("/export/html/{file_path:path}", export_html)
+    router.add_route("/export/markdown/{file_path:path}", download_markdown)
 
     return router
 
