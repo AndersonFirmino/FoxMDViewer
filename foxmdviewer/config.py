@@ -41,12 +41,12 @@ class Settings(BaseSettings):
     watch_files: bool = Field(default=True, description="Enable file watching")
     max_file_size: int = Field(default=10 * 1024 * 1024, description="Max file size")
 
-    class Config:
-        """Pydantic configuration."""
-
-        env_prefix = "MDVIEWER_"
-        env_file = ".env"
-        case_sensitive = False
+    model_config = {
+        "env_prefix": "MDVIEWER_",
+        "env_file": ".env",
+        "case_sensitive": False,
+        "extra": "ignore",
+    }
 
 
 def get_settings(base_dir: Optional[Path] = None) -> Settings:
