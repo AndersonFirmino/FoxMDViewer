@@ -185,13 +185,16 @@
             
             document.querySelectorAll('.file-card').forEach(card => {
                 const searchText = card.dataset.search.toLowerCase();
-                card.style.display = searchText.includes(query) ? 'flex' : 'none';
+                if (searchText.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
             });
             
             document.querySelectorAll('.directory-group').forEach(group => {
-                const visibleFiles = group.querySelectorAll('.file-card[style="display: flex"], .file-card:not([style])');
-                const hasVisible = Array.from(visibleFiles).some(f => f.style.display !== 'none');
-                group.style.display = hasVisible || !query ? 'block' : 'none';
+                const visibleFiles = group.querySelectorAll('.file-card:not(.hidden)');
+                group.style.display = visibleFiles.length > 0 || !query ? 'block' : 'none';
             });
         });
     }

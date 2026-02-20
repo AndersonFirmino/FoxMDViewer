@@ -454,6 +454,10 @@ body::before {
     opacity: 1;
 }
 
+.file-card.hidden {
+    display: none !important;
+}
+
 .file-icon {
     font-size: 1.5rem;
     flex-shrink: 0;
