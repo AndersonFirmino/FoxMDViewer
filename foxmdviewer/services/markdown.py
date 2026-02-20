@@ -5,7 +5,7 @@ with GitHub Flavored Markdown support.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Union
 
 import mistune
 from rich.console import Console
@@ -35,7 +35,7 @@ class MarkdownRenderer:
         >>> html = renderer.render("# Hello World")
     """
 
-    def __init__(self, use_cache: bool = True, plugins: Optional[list] = None) -> None:
+    def __init__(self, use_cache: bool = True, plugins: Optional[List[Union[str, object]]] = None) -> None:
         """Initialize markdown renderer.
 
         Args:
@@ -43,9 +43,21 @@ class MarkdownRenderer:
             plugins: Custom plugins to enable (optional)
         """
         self.use_cache = use_cache and settings.cache_enabled
-        self.plugins = plugins
+        
+        if plugins is None:
+            self.plugins: List[Union[str, object]] = [
+                "table",
+                "footnotes",
+                "strikethrough",
+                "mark",
+            ]
+        else:
+            self.plugins = plugins
 
-        self._markdown = mistune.create_markdown(escape=False)
+        self._markdown = mistune.create_markdown(
+            plugins=self.plugins,
+            escape=False
+        )
 
     def render(self, content: str, file_path: Optional[Path] = None) -> str:
         """Render markdown content to HTML.
