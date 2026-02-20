@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="docs/logo.png" alt="FoxMDViewer Logo" width="300">
+  <img src="docs/logo.png" alt="FoxMDViewer" width="300">
 </p>
-
-<h1 align="center">FoxMDViewer 🦊⛩️</h1>
 
 <p align="center">
   A beautiful, fast, and feature-rich markdown viewer with a Shinto-inspired theme.
@@ -118,10 +116,6 @@ export FOXMDVIEWER_CACHE_ENABLED=true
 ## License
 
 MIT License
-
-## Author
-
-Created by Anderson
 
 ---
 
