@@ -1,6 +1,21 @@
-# FoxMDViewer 🦊⛩️
+<p align="center">
+  <img src="docs/logo.png" alt="FoxMDViewer Logo" width="300">
+</p>
 
-A beautiful, fast, and feature-rich markdown viewer with a Shinto-inspired theme.
+<h1 align="center">FoxMDViewer 🦊⛩️</h1>
+
+<p align="center">
+  A beautiful, fast, and feature-rich markdown viewer with a Shinto-inspired theme.
+</p>
+
+<p align="center">
+  <a href="#installation">Installation</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#features">Features</a> •
+  <a href="#development">Development</a>
+</p>
+
+---
 
 ## Installation
 
@@ -16,7 +31,7 @@ pip install -e .
 ### From Git
 
 ```bash
-pip install git+https://github.com/anderson/foxmdviewer.git
+pip install git+https://github.com/AndersonFirmino/FoxMDViewer.git
 ```
 
 ## Usage

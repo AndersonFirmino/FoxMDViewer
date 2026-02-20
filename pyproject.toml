@@ -55,9 +55,9 @@ dev = [
 mdv = "foxmdviewer.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/anderson/foxmdviewer"
-Repository = "https://github.com/anderson/foxmdviewer"
-Issues = "https://github.com/anderson/foxmdviewer/issues"
+Homepage = "https://github.com/AndersonFirmino/FoxMDViewer"
+Repository = "https://github.com/AndersonFirmino/FoxMDViewer"
+Issues = "https://github.com/AndersonFirmino/FoxMDViewer/issues"
 
 [tool.setuptools]
 packages = ["foxmdviewer", "foxmdviewer.api", "foxmdviewer.models", 
