@@ -426,7 +426,7 @@ body::before {
     transition: var(--transition-normal);
     display: flex;
     gap: 1rem;
-    align-items: flex-start;
+    align-items: center;
     position: relative;
     overflow: hidden;
 }
@@ -503,6 +503,34 @@ body::before {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.file-view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    font-size: 1.25rem;
+    transition: var(--transition-normal);
+    flex-shrink: 0;
+    margin-left: auto;
+    cursor: pointer;
+    color: inherit;
+    font-family: inherit;
+    line-height: 1;
+    padding: 0;
+}
+
+.file-view-btn:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 /* ═══════════════════════════════════════════════════════════

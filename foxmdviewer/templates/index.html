@@ -167,6 +167,7 @@
                     </div>
                     ${file.preview ? `<p class="file-preview">${escapeHtml(file.preview)}</p>` : ''}
                 </div>
+                <button class="file-view-btn" onclick="event.preventDefault(); event.stopPropagation(); window.open('/api/export/html/${encodeURIComponent(file.relative_path)}', '_blank')" title="Modo Leitura">👁️</button>
             </a>
         `;
     }
