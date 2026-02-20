@@ -15,7 +15,7 @@
 
     <div class="viewer-content">
         <div id="markdown-preview" class="markdown-body">
-            <div class="loading">🦊 *kitsune está preparando o pergaminho*</div>
+            <div class="loading">🦊 *kitsune is preparing the scroll*</div>
         </div>
         
         <div id="editor-container" class="editor-container hidden">
@@ -124,7 +124,7 @@
                 document.getElementById('markdown-preview').innerHTML = `
                     <div class="error-state">
                         <p>🦊 ${data.error}</p>
-                        <p class="hint">O kitsune não conseguiu encontrar este pergaminho</p>
+                        <p class="hint">Kitsune couldn't find this scroll</p>
                     </div>
                 `;
                 return;
@@ -140,9 +140,9 @@
             originalContent = data.raw_content;
             
             document.getElementById('last-modified').textContent = 
-                `📅 Última modificação: ${new Date(data.file.modified_at).toLocaleString('pt-BR')}`;
+                `📅 Last modified: ${new Date(data.file.modified_at).toLocaleString('pt-BR')}`;
             document.getElementById('file-size').textContent = 
-                `📦 Tamanho: ${formatSize(data.file.size)}`;
+                `📦 Size: ${formatSize(data.file.size)}`;
             
         } catch (error) {
             console.error('Error loading file:', error);
@@ -155,7 +155,7 @@
         
         ws.onopen = () => {
             document.getElementById('connection-status').innerHTML = 
-                '🟢 Conectado ao Santuário';
+                '🟢 Connected';
             document.getElementById('connection-status').className = 
                 'status-connected';
         };
@@ -172,7 +172,7 @@
         
         ws.onclose = () => {
             document.getElementById('connection-status').innerHTML = 
-                '🦊 Desconectado - Kitsune está tentando reconectar...';
+                '🦊 Disconnected - Reconnecting...';
             document.getElementById('connection-status').className = 
                 'status-disconnected';
             
